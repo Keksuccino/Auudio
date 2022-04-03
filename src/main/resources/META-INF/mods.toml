@@ -1,0 +1,39 @@
+modLoader="javafml"
+loaderVersion="[38,)"
+license="LGPL-2.1"
+[[mods]]
+modId="auudio"
+version="1.0.0"
+displayName="Auudio"
+authors="Keksuccino"
+description='''
+Library to play background audios in menus and worlds.
+
+COPYRIGHT:
+
+> Auudio © Copyright 2022 Keksuccino.
+  Auudio is licensed under LGPL-2.1.
+
+> Tritonus Share © Copyright Florian Bomers, Patrik Duditš.
+  Tritonus Share is licensed under LGPL-2.1.
+
+> JLayer © Copyright JavaZOOM.
+  JLayer is licensed under LGPL-2.1.
+
+> MP3SPI © Copyright JavaZOOM.
+  MP3SPI is licensed under LGPL-2.1.
+'''
+
+[[dependencies.auudio]]
+modId="forge"
+mandatory=true
+versionRange="[38,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.auudio]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18,)"
+ordering="NONE"
+side="CLIENT"
