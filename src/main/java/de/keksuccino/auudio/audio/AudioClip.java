@@ -1,159 +1,143 @@
 package de.keksuccino.auudio.audio;
 
-import de.keksuccino.auudio.audio.exceptions.AudioNotReadyException;
+import com.mojang.blaze3d.audio.Channel;
+import de.keksuccino.auudio.audio.external.ExternalSimpleSoundInstance;
+import de.keksuccino.auudio.audio.external.ExternalSound;
+import de.keksuccino.auudio.audio.external.ExternalSoundResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.Sound;
+import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.sounds.SoundSource;
 
-import javax.sound.sampled.*;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AudioClip {
 
-    protected final String audioPathOrUrl;
-    protected final AudioSource source;
+    protected final String soundPathOrUrl;
+    protected final AudioType audioType;
 
-    protected volatile Clip clip = null;
-    protected boolean playing = false;
-    protected volatile boolean playWhenReady = false;
+    protected ExternalSoundResourceLocation soundLocation;
+    protected WeighedSoundEvents soundEvents;
+    protected ExternalSound sound;
+    protected ExternalSimpleSoundInstance soundInstance;
+    protected Channel channel = null;
+
     protected boolean looping = false;
     protected int volume = 100;
+    protected SoundSource soundSource;
 
-    protected AudioChannel channel = AudioChannel.MASTER;
-    protected int baseVolume = 100;
-
-    public AudioClip(String audioFilePathOrUrl, AudioSource audioSource) {
-        this.audioPathOrUrl = audioFilePathOrUrl;
-        this.source = audioSource;
-        if ((audioSource != null) && (audioFilePathOrUrl != null)) {
-            new Thread(() -> {
-                clip = createNewClipOf(audioFilePathOrUrl, audioSource);
-            }).start();
-        }
-        AudioHandler.registerAudioClip(this);
+    public AudioClip(@Nonnull String audioPathOrUrl, @Nonnull AudioType audioType) throws NullPointerException {
+        this(audioPathOrUrl, audioType, null);
     }
 
-    public void play() throws AudioNotReadyException {
-        if (!isPlaying()) {
-            if (isAudioReady()) {
-                this.playing = true;
-                this.setLooping(this.looping);
-                this.setBaseVolume(this.baseVolume);
-                this.clip.start();
-            } else {
-                throw new AudioNotReadyException("[Auudio] Unable to play audio! Not ready yet: " + this.audioPathOrUrl);
+    public AudioClip(@Nonnull String audioPathOrUrl, @Nonnull AudioType audioType, @Nullable SoundSource soundSource) throws NullPointerException {
+        this.soundPathOrUrl = audioPathOrUrl;
+        this.audioType = audioType;
+        this.soundSource = soundSource;
+        if (this.soundSource == null) {
+            this.soundSource = SoundSource.MASTER;
+        }
+        if ((audioType != null) && (audioPathOrUrl != null)) {
+            this.init();
+            AudioHandler.registerAudioClip(this);
+        } else {
+            throw new NullPointerException("Audio type and/or audio path is NULL!");
+        }
+    }
+
+    /**
+     * ONLY FOR INTERNAL USAGE!<br><br>
+     *
+     * Gets called after reloading resources and in the constructor of new {@link AudioClip} instances.
+     */
+    public boolean init() {
+        try {
+
+            this.stop();
+            this.channel = null;
+
+            if (this.audioType == AudioType.LOCAL) {
+
+                this.soundLocation = new ExternalSoundResourceLocation(this.soundPathOrUrl, AudioType.LOCAL);
+                this.soundInstance = new ExternalSimpleSoundInstance(this, this.soundLocation, this.soundSource, 1.0F, 1.0F);
+                this.soundEvents = new WeighedSoundEvents(this.soundLocation, null);
+                //This is important, otherwise the sound wouldn't be registered correctly
+                boolean stream = true;
+                this.sound = new ExternalSound(this.soundLocation, 1.0F, 1.0F, 1, Sound.Type.FILE, stream, false, 0);
+                this.soundEvents.addSound(this.sound);
+                VanillaSoundUtils.getSoundManagerRegistry().put(soundLocation, soundEvents);
+                this.soundEvents.preloadIfRequired(VanillaSoundUtils.getSoundEngine());
+
+                return true;
+
             }
-        }
-    }
 
-    public boolean hasFinishedPlaying() {
-        if (isAudioReady()) {
-            return (this.clip.getMicrosecondPosition() >= this.clip.getMicrosecondLength());
+            //TODO add web support
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
 
-    /**
-     * Will try to play the audio once it's ready.<br><br>
-     *
-     * <b>Will fail if the audio needs too much time to get ready!</b>
-     */
-    public void tryPlayWhenReady() {
-        if (!this.playWhenReady) {
-            this.playWhenReady = true;
-            new Thread(() -> {
-                long start = System.currentTimeMillis();
-                boolean failed = false;
-                while (!isAudioReady()) {
-                    long now = System.currentTimeMillis();
-                    if ((start + 10000) < now) {
-                        failed = true;
-                        break;
-                    }
-                    try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (!failed) {
-                    try {
-                        play();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                playWhenReady = false;
-            }).start();
+    public void play() {
+        if (!this.playing()) {
+            Minecraft.getInstance().getSoundManager().play(this.soundInstance);
+            this.channel = VanillaSoundUtils.getChannelOfInstance(this.soundInstance);
+            this.setLooping(this.looping);
+            AudioHandler.updateVolumes();
         }
     }
 
+    public boolean stopped() {
+        if (this.channel != null) {
+            return this.channel.stopped();
+        }
+        return true;
+    }
+
     public void pause() {
-        if (isPlaying()) {
-            if (isAudioReady()) {
-                this.clip.stop();
-                this.playing = false;
+        if (playing()) {
+            if (this.channel != null) {
+                this.channel.pause();
             }
         }
     }
 
-    /**
-     * Will reset the clip, so it starts from the beginning.<br>
-     * <b>This will NOT play the clip, it just resets its progress!</b>
-     */
-    public void restart() {
-        if (isAudioReady()) {
-            this.clip.setMicrosecondPosition(0);
+    public void unpause() {
+        if (this.channel != null) {
+            this.channel.unpause();
         }
     }
 
     public void stop() {
-        pause();
-        restart();
+        if (this.soundInstance != null) {
+            Minecraft.getInstance().getSoundManager().stop(this.soundInstance);
+        }
+        this.channel = null;
     }
 
-    public boolean isPlaying() {
-        return this.playing;
+    public boolean playing() {
+        if (this.channel != null) {
+            return this.channel.playing();
+        }
+        return false;
     }
 
     public void setLooping(boolean b) {
-        this.looping = b;
-        if (isAudioReady()) {
-            if (b) {
-                this.clip.setLoopPoints(0, -1);
-                this.clip.loop(-1);
-            } else {
-                this.clip.loop(0);
-            }
+        if (this.channel != null) {
+            this.channel.setLooping(b);
         }
+        this.looping = b;
     }
 
-//    /**
-//     * <b>FOR INTERNAL USE ONLY!</b><br>
-//     * Use {@link AudioClip#setBaseVolume(int)} to set the volume of the clip!<br><br>
-//     *
-//     * @param volume Value between 0 and 100 percent
-//     */
-//    public void setVolume(int volume) {
-//        if (volume < 0) {
-//            volume = 0;
-//        }
-//        if (volume > 100) {
-//            volume = 100;
-//        }
-//        float floatVolume = ((float) volume) / 100.0F;
-//        if (isAudioReady()) {
-//            FloatControl f = ((FloatControl)this.clip.getControl(FloatControl.Type.MASTER_GAIN));
-//            float gain = 20F * (float) Math.log10(floatVolume);
-//            f.setValue(gain);
-//        }
-//        this.volume = volume;
-//    }
+    public boolean isLooping() {
+        return this.looping;
+    }
 
     /**
-     * <b>FOR INTERNAL USE ONLY!</b><br>
-     * Use {@link AudioClip#setBaseVolume(int)} to set the volume of the clip!<br><br>
+     * Set the volume of the sound.
      *
      * @param percentage Value between 0 and 100 percent
      */
@@ -165,108 +149,55 @@ public class AudioClip {
             percentage = 100;
         }
         this.volume = percentage;
-        if ((this.clip != null) && this.clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            FloatControl c = (FloatControl) this.clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float onePercent = (c.getMaximum() - c.getMinimum()) / 100;
-            c.setValue(c.getMinimum() + (onePercent * percentage));
-        }
+        AudioHandler.updateVolumes();
     }
 
     /**
-     * <b>FOR INTERNAL USE ONLY!</b><br>
-     * Use {@link AudioClip#getBaseVolume()} to get the volume of the clip!<br><br>
+     * Get the volume of the sound.
      */
     public int getVolume() {
         return this.volume;
     }
 
-    public void setAudioChannel(AudioChannel channel) {
-        this.channel = channel;
-    }
-
-    public AudioChannel getAudioChannel() {
-        return this.channel;
-    }
-
-    /**
-     * Value between 0 and 100 percent.
-     */
-    public void setBaseVolume(int volume) {
-        if (volume < 0) {
-            volume = 0;
-        }
-        if (volume > 100) {
-            volume = 100;
-        }
-        this.baseVolume = volume;
-        AudioHandler.updateAudioClipVolume(this);
-    }
-
-    public int getBaseVolume() {
-        return this.baseVolume;
-    }
-
-    public boolean isAudioReady() {
-        return (this.clip != null);
-    }
-
     public void destroy() {
         stop();
-        this.clip = null;
+        this.sound = null;
+        this.soundInstance = null;
+        this.soundEvents = null;
+        this.soundLocation = null;
+        //TODO unregister from sound manager + engine
         AudioHandler.unregisterAudioClip(this);
     }
 
-    protected static Clip createNewClipOf(String audioPathOrUrl, AudioSource source) {
-
-        try {
-
-            AudioInputStream in = null;
-
-            if (source == AudioSource.WEB) {
-
-                //TODO fix web source
-                URL u = new URL(audioPathOrUrl);
-                HttpURLConnection http = (HttpURLConnection) u.openConnection();
-                http.addRequestProperty("User-Agent", "Mozilla/4.0");
-                InputStream s = http.getInputStream();
-                if (s != null) {
-                    in = AudioSystem.getAudioInputStream(s);
-                }
-
-            } else if (source == AudioSource.LOCAL) {
-
-                BufferedInputStream s = new BufferedInputStream(new FileInputStream(audioPathOrUrl));
-                in = AudioSystem.getAudioInputStream(s);
-
-            }
-
-            if (in != null) {
-                Clip c = AudioSystem.getClip();
-                AudioInputStream din;
-                AudioFormat baseFormat = in.getFormat();
-                AudioFormat decodedFormat = new AudioFormat(
-                        AudioFormat.Encoding.PCM_SIGNED,
-                        baseFormat.getSampleRate(),
-                        16,
-                        baseFormat.getChannels(),
-                        baseFormat.getChannels() * 2,
-                        baseFormat.getSampleRate(),
-                        false);
-                din = AudioSystem.getAudioInputStream(decodedFormat, in);
-                c.open(din);
-//                c.open(decodedFormat, din.readAllBytes(), 0, 1024);
-                return c;
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return null;
-
+    public SoundSource getSoundSource() {
+        return this.soundSource;
     }
 
-    public enum AudioSource {
+    public String getSoundPath() {
+        return this.soundPathOrUrl;
+    }
+
+    public AudioType getAudioType() {
+        return this.audioType;
+    }
+
+    public ExternalSoundResourceLocation getSoundLocation() {
+        return this.soundLocation;
+    }
+
+    public ExternalSimpleSoundInstance getSoundInstance() {
+        return this.soundInstance;
+    }
+
+    public ExternalSound getSound() {
+        return this.sound;
+    }
+
+    public WeighedSoundEvents getSoundEvents() {
+        return this.soundEvents;
+    }
+
+    public enum AudioType {
         WEB,
         LOCAL;
     }

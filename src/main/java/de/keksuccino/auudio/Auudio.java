@@ -2,6 +2,7 @@ package de.keksuccino.auudio;
 
 import de.keksuccino.auudio.audio.AudioHandler;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +13,7 @@ public class Auudio {
 
 	public static final String VERSION = "1.0.0";
 
-	public static final Logger LOGGER = LogManager.getLogger();
+	protected static final Logger LOGGER = LogManager.getLogger("auudio/Auudio");
 
 	public Auudio() {
 		try {
@@ -22,8 +23,11 @@ public class Auudio {
 
 				AudioHandler.init();
 
+				//TODO remove debug
+				MinecraftForge.EVENT_BUS.register(new EventHandler());
+
 			} else {
-				System.out.println("## WARNING ## 'Auudio' is a client mod and has no effect when loaded on a server!");
+				LOGGER.warn("[AUUDIO] WARNING: Auudio is a client mod and has no effect when loaded on a server!");
 			}
 
 		} catch (Exception e) {
