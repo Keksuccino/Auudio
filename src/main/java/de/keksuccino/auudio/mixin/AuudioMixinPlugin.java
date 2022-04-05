@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class AuudioMixinPlugin implements IMixinConfigPlugin {
 
-    private static final Logger LOGGER = LogManager.getLogger("auudio/AuudioMixinPlugin");
+    private static final Logger LOGGER = LogManager.getLogger("auudio/mixin/AuudioMixinPlugin");
 
     @Override
     public void onLoad(String mixinPackage) {
@@ -24,11 +24,8 @@ public class AuudioMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (isKonkreteLoaded()) {
-            LOGGER.info("[AUUDIO] APPLYING MIXIN: " + mixinClassName + " | TO TARGET: " + targetClassName);
-            return true;
-        }
-        return false;
+        LOGGER.info("APPLYING MIXIN: " + mixinClassName + " | TO TARGET: " + targetClassName);
+        return true;
     }
 
     @Override
@@ -48,13 +45,12 @@ public class AuudioMixinPlugin implements IMixinConfigPlugin {
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
     }
 
-    //TODO Maybe remove this later if Konkrete should not be a dependency anymore
-    private static boolean isKonkreteLoaded() {
-        try {
-            Class.forName("de.keksuccino.konkrete.Konkrete");
-            return true;
-        } catch (Exception e) {}
-        return false;
-    }
+//    private static boolean isKonkreteLoaded() {
+//        try {
+//            Class.forName("de.keksuccino.konkrete.Konkrete");
+//            return true;
+//        } catch (Exception e) {}
+//        return false;
+//    }
 
 }

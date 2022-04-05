@@ -1,26 +1,12 @@
 package de.keksuccino.auudio.audio.external;
 
-import net.minecraft.client.resources.sounds.Sound;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
+import de.keksuccino.auudio.audio.AudioClipSound;
 
-public class ExternalSound extends Sound {
+public class ExternalSound extends AudioClipSound {
 
-    private final ResourceLocation location;
-
-    public ExternalSound(ExternalSoundResourceLocation location, float volume, float pitch, int weight, Type type, boolean stream, boolean preload, int attenuationDistance) {
-        super("", volume, pitch, weight, type, stream, preload, attenuationDistance);
-        this.location = location;
-    }
-
-    @Override
-    public @NotNull ResourceLocation getLocation() {
-        return this.location;
-    }
-
-    @Override
-    public ResourceLocation getPath() {
-        return this.location;
+    public ExternalSound(ExternalSoundResourceLocation location, float volume, float pitch, int weight, Type type, boolean preload, int attenuationDistance) {
+        //It's important to set 'stream' to 'true', otherwise the system can't handle external sounds
+        super(location, volume, pitch, weight, type, true, preload, attenuationDistance);
     }
 
     @Override

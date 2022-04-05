@@ -1,6 +1,6 @@
 package de.keksuccino.auudio.mixin.client;
 
-import de.keksuccino.auudio.audio.external.ExternalSimpleSoundInstance;
+import de.keksuccino.auudio.audio.AudioClipSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.ChannelAccess;
 import net.minecraft.client.sounds.SoundEngine;
@@ -23,7 +23,7 @@ public abstract class MixinSoundEngine {
     private void onUpdateCategoryVolume(SoundSource source, float volume, CallbackInfo info) {
         //TODO maybe check for SoundEngine.loaded, before changing volumes, if important
         this.instanceToChannel.forEach((instance, handle) -> {
-            if (instance instanceof ExternalSimpleSoundInstance) {
+            if (instance instanceof AudioClipSoundInstance) {
                 float f = tweakVol(instance, this.calculateVolume(instance));
                 handle.execute((channel) -> {
                     channel.setVolume(f);
@@ -36,8 +36,8 @@ public abstract class MixinSoundEngine {
      * Used to calculate the new sound volume while respecting the "base volume" of the sound
      */
     private float tweakVol(SoundInstance instance, float vol) {
-        if (instance instanceof ExternalSimpleSoundInstance) {
-            int audioClipVolumePercentage = ((ExternalSimpleSoundInstance)instance).getParent().getVolume();
+        if (instance instanceof AudioClipSoundInstance) {
+            int audioClipVolumePercentage = ((AudioClipSoundInstance)instance).getParent().getVolume();
             float audioClipOnePercent = (float)audioClipVolumePercentage / 100.0F;
             int mcVolumePercentage = (int)(vol * 100.0F);
             int finalPercentage = (int)(audioClipOnePercent * ((float)mcVolumePercentage));

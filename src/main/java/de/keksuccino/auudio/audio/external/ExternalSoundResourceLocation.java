@@ -1,17 +1,18 @@
 package de.keksuccino.auudio.audio.external;
 
 import de.keksuccino.auudio.audio.AudioClip;
+import de.keksuccino.auudio.input.CharacterFilter;
 import net.minecraft.resources.ResourceLocation;
 
 public class ExternalSoundResourceLocation extends ResourceLocation {
 
     protected String soundPath;
-    protected AudioClip.AudioType audioType;
+    protected AudioClip.SoundType soundType;
 
-    public ExternalSoundResourceLocation(String soundPath, AudioClip.AudioType audioType) {
-        super("", soundPath);
+    public ExternalSoundResourceLocation(String soundPath, AudioClip.SoundType soundType) {
+        super("", filterName(soundPath));
         this.soundPath = soundPath;
-        this.audioType = audioType;
+        this.soundType = soundType;
     }
 
     @Override
@@ -19,8 +20,12 @@ public class ExternalSoundResourceLocation extends ResourceLocation {
         return this.soundPath;
     }
 
-    public AudioClip.AudioType getAudioType() {
-        return audioType;
+    public AudioClip.SoundType getSoundType() {
+        return soundType;
+    }
+
+    public static String filterName(String name) {
+        return CharacterFilter.getBasicFilenameCharacterFilter().filterForAllowedChars(name);
     }
 
 }

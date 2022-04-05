@@ -24,6 +24,8 @@ public class AudioHandler {
 
         MinecraftForge.EVENT_BUS.register(new AudioHandler());
 
+        LOGGER.info("Initialized!");
+
     }
 
     public static void registerAudioClip(AudioClip clip) {
@@ -48,7 +50,7 @@ public class AudioHandler {
         if ((lastOverlay != null) && (Minecraft.getInstance().getOverlay() == null)) {
             LOGGER.info("Reloading sounds!");
             for (AudioClip c : clips) {
-                c.init();
+                c.prepare();
             }
         }
         lastOverlay = Minecraft.getInstance().getOverlay();

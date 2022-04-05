@@ -1,12 +1,13 @@
 package de.keksuccino.auudio.audio;
 
 import com.mojang.blaze3d.audio.Channel;
-import de.keksuccino.auudio.audio.external.ExternalSimpleSoundInstance;
+import de.keksuccino.auudio.audio.exceptions.InvalidAudioException;
 import de.keksuccino.auudio.audio.external.ExternalSound;
 import de.keksuccino.auudio.audio.external.ExternalSoundResourceLocation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 
 import javax.annotation.Nonnull;
@@ -14,57 +15,96 @@ import javax.annotation.Nullable;
 
 public class AudioClip {
 
-    protected final String soundPathOrUrl;
-    protected final AudioType audioType;
-
-    protected ExternalSoundResourceLocation soundLocation;
+    protected final SoundType soundType;
+    protected ResourceLocation soundLocation;
     protected WeighedSoundEvents soundEvents;
-    protected ExternalSound sound;
-    protected ExternalSimpleSoundInstance soundInstance;
+    protected AudioClipSound sound;
+    protected AudioClipSoundInstance soundInstance;
     protected Channel channel = null;
 
     protected boolean looping = false;
     protected int volume = 100;
     protected SoundSource soundSource;
 
-    public AudioClip(@Nonnull String audioPathOrUrl, @Nonnull AudioType audioType) throws NullPointerException {
-        this(audioPathOrUrl, audioType, null);
+    public AudioClip(@Nonnull ResourceLocation soundLocation, @Nonnull SoundType soundType) throws NullPointerException, InvalidAudioException {
+        this(soundLocation, soundType, null);
     }
 
-    public AudioClip(@Nonnull String audioPathOrUrl, @Nonnull AudioType audioType, @Nullable SoundSource soundSource) throws NullPointerException {
-        this.soundPathOrUrl = audioPathOrUrl;
-        this.audioType = audioType;
+    public AudioClip(@Nonnull ResourceLocation soundLocation, @Nonnull SoundType soundType, @Nullable SoundSource soundSource) throws NullPointerException, InvalidAudioException {
+        if (soundLocation == null) {
+            throw new NullPointerException("Sound location is NULL!");
+        }
+        if (soundType == null) {
+            throw new NullPointerException("Sound type is NULL!");
+        }
+        if ((soundLocation instanceof ExternalSoundResourceLocation) && (soundType == SoundType.INTERNAL_ASSET)) {
+            throw new InvalidAudioException("Trying to load an ExternalSoundResourceLocation as internal asset!");
+        }
+        if (!(soundLocation instanceof ExternalSoundResourceLocation) && (soundType != SoundType.INTERNAL_ASSET)) {
+            throw new InvalidAudioException("Trying to load an internal asset ResourceLocation as external sound!");
+        }
+        if (soundLocation instanceof ExternalSoundResourceLocation) {
+            if (((ExternalSoundResourceLocation)soundLocation).getSoundType() != soundType) {
+                throw new InvalidAudioException("Sound type of external sound doesn't match clip sound type!");
+            }
+        }
+        this.soundLocation = soundLocation;
+        this.soundType = soundType;
         this.soundSource = soundSource;
         if (this.soundSource == null) {
             this.soundSource = SoundSource.MASTER;
         }
-        if ((audioType != null) && (audioPathOrUrl != null)) {
-            this.init();
-            AudioHandler.registerAudioClip(this);
-        } else {
-            throw new NullPointerException("Audio type and/or audio path is NULL!");
-        }
+        this.prepare();
+        AudioHandler.registerAudioClip(this);
+    }
+
+    public static AudioClip buildExternalClip(String soundPath, SoundType soundType, @Nullable SoundSource soundSource) throws InvalidAudioException, NullPointerException {
+        return new AudioClip(new ExternalSoundResourceLocation(soundPath, soundType), soundType, soundSource);
+    }
+
+    public static AudioClip buildExternalClip(String soundPath, SoundType soundType) throws InvalidAudioException, NullPointerException {
+        return buildExternalClip(soundPath, soundType, null);
     }
 
     /**
-     * ONLY FOR INTERNAL USAGE!<br><br>
-     *
+     * Don't use {@link ExternalSoundResourceLocation}s here! Only normal {@link ResourceLocation}s are supported!
+     */
+    public static AudioClip buildInternalClip(ResourceLocation soundLocation, @Nullable SoundSource soundSource) throws InvalidAudioException, NullPointerException {
+        return new AudioClip(soundLocation, SoundType.INTERNAL_ASSET, soundSource);
+    }
+
+    /**
+     * Don't use {@link ExternalSoundResourceLocation}s here! Only normal {@link ResourceLocation}s are supported!
+     */
+    public static AudioClip buildInternalClip(ResourceLocation soundLocation) throws InvalidAudioException, NullPointerException {
+        return buildInternalClip(soundLocation, SoundSource.MASTER);
+    }
+
+    /**
      * Gets called after reloading resources and in the constructor of new {@link AudioClip} instances.
      */
-    public boolean init() {
+    public boolean prepare() {
         try {
 
             this.stop();
             this.channel = null;
 
-            if (this.audioType == AudioType.LOCAL) {
+            if ((this.soundType == SoundType.EXTERNAL_LOCAL) || (this.soundType == SoundType.EXTERNAL_WEB)) {
 
-                this.soundLocation = new ExternalSoundResourceLocation(this.soundPathOrUrl, AudioType.LOCAL);
-                this.soundInstance = new ExternalSimpleSoundInstance(this, this.soundLocation, this.soundSource, 1.0F, 1.0F);
+                this.soundInstance = new AudioClipSoundInstance(this, this.soundLocation, this.soundSource, 1.0F, 1.0F);
                 this.soundEvents = new WeighedSoundEvents(this.soundLocation, null);
-                //This is important, otherwise the sound wouldn't be registered correctly
-                boolean stream = true;
-                this.sound = new ExternalSound(this.soundLocation, 1.0F, 1.0F, 1, Sound.Type.FILE, stream, false, 0);
+                this.sound = new ExternalSound((ExternalSoundResourceLocation)this.soundLocation, 1.0F, 1.0F, 1, Sound.Type.FILE, false, 0);
+                this.soundEvents.addSound(this.sound);
+                VanillaSoundUtils.getSoundManagerRegistry().put(soundLocation, soundEvents);
+                this.soundEvents.preloadIfRequired(VanillaSoundUtils.getSoundEngine());
+
+                return true;
+
+            } else if (this.soundType == SoundType.INTERNAL_ASSET) {
+
+                this.soundInstance = new AudioClipSoundInstance(this, this.soundLocation, this.soundSource, 1.0F, 1.0F);
+                this.soundEvents = new WeighedSoundEvents(this.soundLocation, null);
+                this.sound = new AudioClipSound(this.soundLocation, 1.0F, 1.0F, 1, Sound.Type.FILE, false, false, 0);
                 this.soundEvents.addSound(this.sound);
                 VanillaSoundUtils.getSoundManagerRegistry().put(soundLocation, soundEvents);
                 this.soundEvents.preloadIfRequired(VanillaSoundUtils.getSoundEngine());
@@ -72,8 +112,6 @@ public class AudioClip {
                 return true;
 
             }
-
-            //TODO add web support
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -159,6 +197,7 @@ public class AudioClip {
         return this.volume;
     }
 
+
     public void destroy() {
         stop();
         this.sound = null;
@@ -174,22 +213,22 @@ public class AudioClip {
     }
 
     public String getSoundPath() {
-        return this.soundPathOrUrl;
+        return this.soundLocation.getPath();
     }
 
-    public AudioType getAudioType() {
-        return this.audioType;
+    public SoundType getSoundType() {
+        return this.soundType;
     }
 
-    public ExternalSoundResourceLocation getSoundLocation() {
+    public ResourceLocation getSoundLocation() {
         return this.soundLocation;
     }
 
-    public ExternalSimpleSoundInstance getSoundInstance() {
+    public AudioClipSoundInstance getSoundInstance() {
         return this.soundInstance;
     }
 
-    public ExternalSound getSound() {
+    public AudioClipSound getSound() {
         return this.sound;
     }
 
@@ -197,9 +236,10 @@ public class AudioClip {
         return this.soundEvents;
     }
 
-    public enum AudioType {
-        WEB,
-        LOCAL;
+    public enum SoundType {
+        EXTERNAL_WEB,
+        EXTERNAL_LOCAL,
+        INTERNAL_ASSET;
     }
 
 }
