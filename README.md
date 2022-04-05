@@ -36,6 +36,9 @@ clip.setLooping(true);
 //Play the clip
 clip.play();
 
+//Check if the clip is currently playing
+clip.playing();
+
 //Pause the clip
 clip.pause();
 
