@@ -19,6 +19,7 @@ Playing sounds via Auudio is pretty simple.
 To play a sound, just create a new [`AudioClip`](https://github.com/Keksuccino/Auudio/blob/forge-1.18/src/main/java/de/keksuccino/auudio/audio/AudioClip.java) instance.
 
 ```java
+
 //Create a clip for a sound asset stored in /assets/
 AudioClip clip = AudioClip.buildInternalClip(new ResourceLocation("auudio", "test_file.ogg"), SoundSource.MUSIC);
 //Create a clip for an audio file stored on the client system (outside of the JAR)
@@ -43,6 +44,10 @@ clip.unpause();
 
 //Stop the clip (this will reset its progress)
 clip.stop();
+
+//Destroy the clip when you don't need it anymore
+clip.destroy();
+
 ```
 
 ## Download
