@@ -30,6 +30,9 @@ AudioClip clip = AudioClip.buildExternalClip("https://mydomain.com/test_file.ogg
 //Set the clip volume
 clip.setVolume(30);
 
+//Get the clip volume
+clip.getVolume();
+
 //Set the clip to loop/not loop
 clip.setLooping(true);
 
@@ -41,6 +44,9 @@ clip.playing();
 
 //Pause the clip
 clip.pause();
+
+//Check if the clip is paused
+clip.paused();
 
 //Resume the clip
 clip.unpause();
