@@ -18,6 +18,9 @@ public class AudioHandler {
 
     private static List<AudioClip> clips = new ArrayList<>();
 
+    //TODO übernehmen
+    private static List<AudioClip> wasPlayingLastTick = new ArrayList<>();
+
     protected static Overlay lastOverlay = null;
 
     public static void init() {
@@ -46,6 +49,25 @@ public class AudioHandler {
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent e) {
+
+        //TODO übernehmen
+        for (AudioClip c : clips) {
+
+            //Handle looping
+            if (c.isLooping() && wasPlayingLastTick.contains(c)) {
+                if (!c.playing() && (c.channel != null) && !c.paused()) {
+                    c.stop();
+                    c.play();
+                }
+            }
+
+            if (!c.playing()) {
+                wasPlayingLastTick.remove(c);
+            } else if (!wasPlayingLastTick.contains(c)) {
+                wasPlayingLastTick.add(c);
+            }
+
+        }
 
         if ((lastOverlay != null) && (Minecraft.getInstance().getOverlay() == null)) {
             LOGGER.info("Reloading sounds!");

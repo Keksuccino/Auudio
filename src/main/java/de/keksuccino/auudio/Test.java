@@ -1,5 +1,12 @@
 package de.keksuccino.auudio;
 
+//import de.keksuccino.auudio.audio.AudioClip;
+//import de.keksuccino.konkrete.gui.content.AdvancedButton;
+//import net.minecraft.client.Minecraft;
+//import net.minecraft.sounds.SoundSource;
+//import net.minecraftforge.client.event.ScreenEvent;
+//import net.minecraftforge.eventbus.api.SubscribeEvent;
+
 public class Test {
 
 //    AudioClip clip = null;
@@ -8,8 +15,9 @@ public class Test {
 //
 //        if (this.clip == null) {
 //            try {
-////                this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe6be44af2624c97c9364d4/2017/11/file_example_OOG_1MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MUSIC);
-//                this.clip = AudioClip.buildInternalClip(new ResourceLocation("auudio", "test_file.ogg"), SoundSource.MUSIC);
+////                this.clip = AudioClip.buildExternalClip("test.ogg", AudioClip.SoundType.EXTERNAL_LOCAL, SoundSource.MASTER);
+////                this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe8404b1ad624daa545ea16/2017/11/file_example_OOG_2MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MUSIC);
+////                this.clip = AudioClip.buildInternalClip(new ResourceLocation("auudio", "test_file.ogg"), SoundCategory.MUSIC);
 //                this.clip.setVolume(30);
 //                this.clip.setLooping(true);
 //            } catch (Exception e) {
@@ -19,7 +27,6 @@ public class Test {
 //        clip.play();
 //
 //    });
-//
 //    protected AdvancedButton button2 = new AdvancedButton(20, 45, 100, 20, "vol up", true, (press) -> {
 //        if (this.clip != null) {
 //            this.clip.setVolume(this.clip.getVolume() + 5);

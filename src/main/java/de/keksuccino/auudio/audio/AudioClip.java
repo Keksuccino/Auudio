@@ -9,9 +9,12 @@ import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import org.lwjgl.openal.AL10;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 
 public class AudioClip {
 
@@ -123,7 +126,8 @@ public class AudioClip {
         if (!this.playing()) {
             Minecraft.getInstance().getSoundManager().play(this.soundInstance);
             this.channel = VanillaSoundUtils.getChannelOfInstance(this.soundInstance);
-            this.setLooping(this.looping);
+            //TODO übernehmen
+//            this.setLooping(this.looping);
             AudioHandler.updateVolumes();
         }
     }
@@ -141,6 +145,18 @@ public class AudioClip {
                 this.channel.pause();
             }
         }
+    }
+
+    //TODO übernehmen
+    public boolean paused() {
+        try {
+            if (this.channel != null) {
+                return (AL10.alGetSourcei(getChannelSource(), AL10.AL_SOURCE_STATE) == AL10.AL_PAUSED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void unpause() {
@@ -163,10 +179,8 @@ public class AudioClip {
         return false;
     }
 
+    //TODO übernehmen
     public void setLooping(boolean b) {
-        if (this.channel != null) {
-            this.channel.setLooping(b);
-        }
         this.looping = b;
     }
 
@@ -234,6 +248,17 @@ public class AudioClip {
 
     public WeighedSoundEvents getSoundEvents() {
         return this.soundEvents;
+    }
+
+    //TODO übernehmen
+    public int getChannelSource() {
+        try {
+            Field f = ObfuscationReflectionHelper.findField(Channel.class, "f_83642_"); //source
+            return (int) f.get(this.channel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public enum SoundType {
