@@ -36,6 +36,9 @@ clip.getVolume();
 //Set the clip to loop/not loop
 clip.setLooping(true);
 
+//Check if the clip should loop
+clip.isLooping();
+
 //Play the clip
 clip.play();
 
