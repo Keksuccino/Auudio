@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "de.keksuccino.auudio.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "client.MixinAudioStreamManager",
+    "client.MixinSoundEngine"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "auudio.mixin-refmap.json",
+  "plugin": "de.keksuccino.auudio.mixin.AuudioMixinPlugin",
+  "minVersion": "0.8"
+}

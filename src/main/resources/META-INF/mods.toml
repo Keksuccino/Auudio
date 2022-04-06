@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="GPLv3"
+[[mods]]
+modId="auudio"
+version="1.0.1"
+displayName="Auudio"
+authors="Keksuccino"
+description='''
+Library to play background sounds in menus and worlds.
+
+COPYRIGHT:
+
+> Auudio © Copyright 2022 Keksuccino.
+  Auudio is licensed under GPLv3.
+'''
+
+[[dependencies.auudio]]
+modId="forge"
+mandatory=true
+versionRange="[36,)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.auudio]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.16.5,)"
+ordering="NONE"
+side="CLIENT"
