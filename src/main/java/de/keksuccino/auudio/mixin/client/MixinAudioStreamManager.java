@@ -1,5 +1,6 @@
 package de.keksuccino.auudio.mixin.client;
 
+import de.keksuccino.auudio.audio.AudioClipInputStream;
 import de.keksuccino.auudio.audio.AudioClip;
 import de.keksuccino.auudio.audio.exceptions.InvalidAudioException;
 import de.keksuccino.auudio.audio.external.ExternalSoundResourceLocation;
@@ -16,9 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +45,7 @@ public class MixinAudioStreamManager {
                                 URL u = new URL(location.getPath());
                                 HttpURLConnection http = (HttpURLConnection) u.openConnection();
                                 http.addRequestProperty("User-Agent", "Mozilla/4.0");
-                                inputstream = http.getInputStream();
+                                inputstream = new AudioClipInputStream(http.getInputStream(), location.getPath(), AudioClip.SoundType.EXTERNAL_WEB);
 
                             } else if (locationSoundType == AudioClip.SoundType.EXTERNAL_LOCAL) {
 
@@ -67,6 +66,7 @@ public class MixinAudioStreamManager {
 
                         } catch (Exception ex) {
                             MIXIN_LOGGER.error("Error while trying to get input stream for external sound! (" + locationSoundType.name() + ")");
+//                            ex.printStackTrace();
                             throw new CompletionException(ex);
                         }
                     }, Util.getServerExecutor())

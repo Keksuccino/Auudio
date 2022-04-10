@@ -3,7 +3,7 @@ loaderVersion="[36,)"
 license="GPLv3"
 [[mods]]
 modId="auudio"
-version="1.0.1"
+version="1.0.2"
 displayName="Auudio"
 authors="Keksuccino"
 description='''
