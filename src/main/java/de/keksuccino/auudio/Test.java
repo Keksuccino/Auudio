@@ -16,7 +16,7 @@ public class Test {
 //        if (this.clip == null) {
 //            try {
 ////                this.clip = AudioClip.buildExternalClip("test.ogg", AudioClip.SoundType.EXTERNAL_LOCAL, SoundSource.MASTER);
-////                this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe8404b1ad624daa545ea16/2017/11/file_example_OOG_2MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MUSIC);
+//                this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe1fca3bab62533d59c03ef/2017/11/file_example_OOG_2MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MASTER);
 ////                this.clip = AudioClip.buildInternalClip(new ResourceLocation("auudio", "test_file.ogg"), SoundCategory.MUSIC);
 //                this.clip.setVolume(30);
 //                this.clip.setLooping(true);

@@ -2,6 +2,7 @@ package de.keksuccino.auudio.mixin.client;
 
 import com.mojang.blaze3d.audio.OggAudioStream;
 import de.keksuccino.auudio.audio.AudioClip;
+import de.keksuccino.auudio.audio.AudioClipInputStream;
 import de.keksuccino.auudio.audio.exceptions.InvalidAudioException;
 import de.keksuccino.auudio.audio.external.ExternalSoundResourceLocation;
 import net.minecraft.Util;
@@ -46,7 +47,7 @@ public class MixinSoundBufferLibrary {
                                 URL u = new URL(location.getPath());
                                 HttpURLConnection http = (HttpURLConnection) u.openConnection();
                                 http.addRequestProperty("User-Agent", "Mozilla/4.0");
-                                inputstream = http.getInputStream();
+                                inputstream = new AudioClipInputStream(http.getInputStream(), location.getPath(), AudioClip.SoundType.EXTERNAL_WEB);
 
                             } else if (locationSoundType == AudioClip.SoundType.EXTERNAL_LOCAL) {
 
@@ -67,6 +68,7 @@ public class MixinSoundBufferLibrary {
 
                         } catch (Exception ex) {
                             MIXIN_LOGGER.error("Error while trying to get input stream for external sound! (" + locationSoundType.name() + ")");
+//                            ex.printStackTrace();
                             throw new CompletionException(ex);
                         }
                     }, Util.backgroundExecutor())
