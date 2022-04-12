@@ -1,11 +1,11 @@
 package de.keksuccino.auudio.audio;
 
+import de.keksuccino.auudio.Auudio;
+import de.keksuccino.auudio.util.event.SubscribeEvent;
+import de.keksuccino.auudio.util.event.events.ClientTickEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,14 +18,13 @@ public class AudioHandler {
 
     private static List<AudioClip> clips = new ArrayList<>();
 
-    //TODO übernehmen
     private static List<AudioClip> wasPlayingLastTick = new ArrayList<>();
 
     protected static Overlay lastOverlay = null;
 
     public static void init() {
 
-        MinecraftForge.EVENT_BUS.register(new AudioHandler());
+        Auudio.EVENT_HANDLER.registerEventsFrom(new AudioHandler());
 
         LOGGER.info("Initialized!");
 
@@ -48,9 +47,8 @@ public class AudioHandler {
     }
 
     @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent e) {
+    public void onClientTick(ClientTickEvent e) {
 
-        //TODO übernehmen
         for (AudioClip c : clips) {
 
             //Handle looping

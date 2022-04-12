@@ -21,7 +21,6 @@ public abstract class MixinSoundEngine {
 
     @Inject(at = @At("RETURN"), method = "updateCategoryVolume")
     private void onUpdateCategoryVolume(SoundSource source, float volume, CallbackInfo info) {
-        //TODO maybe check for SoundEngine.loaded, before changing volumes, if important
         this.instanceToChannel.forEach((instance, handle) -> {
             if (instance instanceof AudioClipSoundInstance) {
                 float f = tweakVol(instance, this.calculateVolume(instance));

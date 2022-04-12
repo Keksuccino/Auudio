@@ -4,17 +4,15 @@ import com.mojang.blaze3d.audio.Channel;
 import de.keksuccino.auudio.audio.exceptions.InvalidAudioException;
 import de.keksuccino.auudio.audio.external.ExternalSound;
 import de.keksuccino.auudio.audio.external.ExternalSoundResourceLocation;
+import de.keksuccino.auudio.mixin.client.IMixinChannel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.WeighedSoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openal.AL10;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.Field;
 
 public class AudioClip {
 
@@ -29,11 +27,11 @@ public class AudioClip {
     protected int volume = 100;
     protected SoundSource soundSource;
 
-    public AudioClip(@Nonnull ResourceLocation soundLocation, @Nonnull SoundType soundType) throws NullPointerException, InvalidAudioException {
+    public AudioClip(@NotNull ResourceLocation soundLocation, @NotNull SoundType soundType) throws NullPointerException, InvalidAudioException {
         this(soundLocation, soundType, null);
     }
 
-    public AudioClip(@Nonnull ResourceLocation soundLocation, @Nonnull SoundType soundType, @Nullable SoundSource soundSource) throws NullPointerException, InvalidAudioException {
+    public AudioClip(@NotNull ResourceLocation soundLocation, @NotNull SoundType soundType, @Nullable SoundSource soundSource) throws NullPointerException, InvalidAudioException {
         if (soundLocation == null) {
             throw new NullPointerException("Sound location is NULL!");
         }
@@ -126,8 +124,6 @@ public class AudioClip {
         if (!this.playing()) {
             Minecraft.getInstance().getSoundManager().play(this.soundInstance);
             this.channel = VanillaSoundUtils.getChannelOfInstance(this.soundInstance);
-            //TODO übernehmen
-//            this.setLooping(this.looping);
             AudioHandler.updateVolumes();
         }
     }
@@ -147,7 +143,6 @@ public class AudioClip {
         }
     }
 
-    //TODO übernehmen
     public boolean paused() {
         try {
             if (this.channel != null) {
@@ -179,7 +174,6 @@ public class AudioClip {
         return false;
     }
 
-    //TODO übernehmen
     public void setLooping(boolean b) {
         this.looping = b;
     }
@@ -218,7 +212,6 @@ public class AudioClip {
         this.soundInstance = null;
         this.soundEvents = null;
         this.soundLocation = null;
-        //TODO unregister from sound manager + engine
         AudioHandler.unregisterAudioClip(this);
     }
 
@@ -250,15 +243,8 @@ public class AudioClip {
         return this.soundEvents;
     }
 
-    //TODO übernehmen
     public int getChannelSource() {
-        try {
-            Field f = ObfuscationReflectionHelper.findField(Channel.class, "f_83642_"); //source
-            return (int) f.get(this.channel);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return ((IMixinChannel)this.channel).getSource();
     }
 
     public enum SoundType {

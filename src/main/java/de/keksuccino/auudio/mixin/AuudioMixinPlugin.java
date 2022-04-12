@@ -45,12 +45,4 @@ public class AuudioMixinPlugin implements IMixinConfigPlugin {
     public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
     }
 
-//    private static boolean isKonkreteLoaded() {
-//        try {
-//            Class.forName("de.keksuccino.konkrete.Konkrete");
-//            return true;
-//        } catch (Exception e) {}
-//        return false;
-//    }
-
 }
