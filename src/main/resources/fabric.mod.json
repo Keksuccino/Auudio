@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "auudio",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "Auudio",
   "description": "Library to play background sounds in menus and worlds. | Auudio © Copyright 2022 Keksuccino. Auudio is licensed under GPLv3.",
   "environment": "client",

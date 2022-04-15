@@ -244,7 +244,7 @@ public class AudioClip {
     }
 
     public int getChannelSource() {
-        return ((IMixinChannel)this.channel).getSource();
+        return ((IMixinChannel)this.channel).getSourceAuudio();
     }
 
     public enum SoundType {

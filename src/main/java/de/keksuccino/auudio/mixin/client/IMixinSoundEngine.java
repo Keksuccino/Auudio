@@ -11,6 +11,6 @@ import java.util.Map;
 @Mixin(SoundEngine.class)
 public interface IMixinSoundEngine {
 
-    @Accessor public Map<SoundInstance, ChannelAccess.ChannelHandle> getInstanceToChannel();
+    @Accessor("instanceToChannel") public Map<SoundInstance, ChannelAccess.ChannelHandle> getInstanceToChannelAuudio();
 
 }

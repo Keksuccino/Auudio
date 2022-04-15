@@ -20,6 +20,9 @@ public class AudioHandler {
 
     private static List<AudioClip> wasPlayingLastTick = new ArrayList<>();
 
+    public static List<Runnable> postReloadingTasks = new ArrayList<>();
+    private static boolean reloaded = false;
+
     protected static Overlay lastOverlay = null;
 
     public static void init() {
@@ -67,13 +70,22 @@ public class AudioHandler {
 
         }
 
+        //TODO übernehmen
         if ((lastOverlay != null) && (Minecraft.getInstance().getOverlay() == null)) {
             LOGGER.info("Reloading sounds!");
             for (AudioClip c : clips) {
                 c.prepare();
             }
+            reloaded = true;
+        } else if (reloaded) {
+            LOGGER.info("Running post-reload tasks..");
+            for (Runnable r : postReloadingTasks) {
+                r.run();
+            }
+            reloaded = false;
         }
         lastOverlay = Minecraft.getInstance().getOverlay();
+        //---------------------
 
     }
 

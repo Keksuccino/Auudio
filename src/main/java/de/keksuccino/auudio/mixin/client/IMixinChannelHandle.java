@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(ChannelAccess.ChannelHandle.class)
 public interface IMixinChannelHandle {
 
-    @Accessor public Channel getChannel();
+    @Accessor("channel") public Channel getChannelAuudio();
 
 }
