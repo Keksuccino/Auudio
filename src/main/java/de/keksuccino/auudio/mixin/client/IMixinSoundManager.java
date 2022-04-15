@@ -12,8 +12,8 @@ import java.util.Map;
 @Mixin(SoundManager.class)
 public interface IMixinSoundManager {
 
-    @Accessor public SoundEngine getSoundEngine();
+    @Accessor("soundEngine") public SoundEngine getSoundEngineAuudio();
 
-    @Accessor public Map<ResourceLocation, WeighedSoundEvents> getRegistry();
+    @Accessor("registry") public Map<ResourceLocation, WeighedSoundEvents> getRegistryAuudio();
 
 }

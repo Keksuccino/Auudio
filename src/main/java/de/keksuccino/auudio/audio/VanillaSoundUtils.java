@@ -46,22 +46,22 @@ public class VanillaSoundUtils {
 
     @Nullable
     public static Channel getChannelOfHandle(ChannelAccess.ChannelHandle handle) {
-        return ((IMixinChannelHandle)handle).getChannel();
+        return ((IMixinChannelHandle)handle).getChannelAuudio();
     }
 
     @Nullable
     public static Map<SoundInstance, ChannelAccess.ChannelHandle> getSoundEngineInstanceChannels() {
-        return ((IMixinSoundEngine)getSoundEngine()).getInstanceToChannel();
+        return ((IMixinSoundEngine)getSoundEngine()).getInstanceToChannelAuudio();
     }
 
     @Nullable
     public static SoundEngine getSoundEngine() {
-        return ((IMixinSoundManager)Minecraft.getInstance().getSoundManager()).getSoundEngine();
+        return ((IMixinSoundManager)Minecraft.getInstance().getSoundManager()).getSoundEngineAuudio();
     }
 
     @Nullable
     public static Map<ResourceLocation, WeighedSoundEvents> getSoundManagerRegistry() {
-        return ((IMixinSoundManager)Minecraft.getInstance().getSoundManager()).getRegistry();
+        return ((IMixinSoundManager)Minecraft.getInstance().getSoundManager()).getRegistryAuudio();
     }
 
 }

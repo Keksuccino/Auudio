@@ -24,7 +24,7 @@ public class Test {
 //
 //                if (Minecraft.getInstance().screen instanceof TitleScreen) {
 //                    if (this.clip == null) {
-//                        this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe3f5fc9646254aafa134d8/2017/11/file_example_OOG_2MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MASTER);
+//                        this.clip = AudioClip.buildExternalClip("https://file-examples.com/storage/fe996ea3606255b629cd65a/2017/11/file_example_OOG_2MG.ogg", AudioClip.SoundType.EXTERNAL_WEB, SoundSource.MASTER);
 //                    }
 //                    if (!playing) {
 //                        this.clip.play();
