@@ -1,9 +1,9 @@
 modLoader="javafml"
-loaderVersion="[36,)"
+loaderVersion="[33,)"
 license="GPLv3"
 [[mods]]
 modId="auudio"
-version="1.0.2"
+version="1.0.3"
 displayName="Auudio"
 authors="Keksuccino"
 description='''
@@ -18,13 +18,13 @@ COPYRIGHT:
 [[dependencies.auudio]]
 modId="forge"
 mandatory=true
-versionRange="[36,)"
+versionRange="[33,)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.auudio]]
 modId="minecraft"
 mandatory=true
-versionRange="[1.16.5,)"
+versionRange="[1.16.2,)"
 ordering="NONE"
 side="CLIENT"

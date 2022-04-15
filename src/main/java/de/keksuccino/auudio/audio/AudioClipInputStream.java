@@ -1,10 +1,14 @@
 package de.keksuccino.auudio.audio;
 
 import de.keksuccino.auudio.util.UrlUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 
 public class AudioClipInputStream extends InputStream {
+
+    private static final Logger LOGGER = LogManager.getLogger("auudio/AudioClipInputStream");
 
     protected InputStream parentStream;
 
@@ -24,6 +28,7 @@ public class AudioClipInputStream extends InputStream {
 
     @Override
     public int read(byte[] b) throws IOException {
+        LOGGER.info("############### " + this);
         if ((this.type == AudioClip.SoundType.EXTERNAL_WEB) && !UrlUtils.isValidUrl(this.source)) {
             return -1;
         }
