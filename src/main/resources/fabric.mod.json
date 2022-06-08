@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "auudio",
+  "version": "1.0.3",
+  "name": "Auudio",
+  "description": "Library to play background sounds in menus and worlds. | Auudio © Copyright 2022 Keksuccino. Auudio is licensed under GPLv3.",
+  "environment": "client",
+  "authors": [
+    "Keksuccino"
+  ],
+  "contributors": [],
+  "contact": {},
+  "license": "GPLv3",
+  "entrypoints": {
+    "main": [
+      "de.keksuccino.auudio.Auudio"
+    ],
+    "client": [],
+    "server": []
+  },
+  "mixins": [
+    "auudio.mixin.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+	"minecraft": "1.19.x",
+    "java": ">=17"
+  }
+}

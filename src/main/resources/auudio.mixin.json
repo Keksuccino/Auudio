@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "package": "de.keksuccino.auudio.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "client.MixinSoundBufferLibrary",
+    "client.MixinSoundEngine",
+    "client.MixinMinecraft",
+    "client.IMixinChannel",
+    "client.IMixinChannelHandle",
+    "client.IMixinSoundEngine",
+    "client.IMixinSoundManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "auudio.mixin-refmap.json",
+  "plugin": "de.keksuccino.auudio.mixin.AuudioMixinPlugin",
+  "minVersion": "0.8"
+}
