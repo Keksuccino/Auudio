@@ -62,15 +62,6 @@ clip.destroy();
 
 ```
 
-## Download
-
-Auudio is available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/auudio-forge)!
-
-## Licensing
-
-Auudio is licensed under GPLv3.<br>
-See `LICENSE` for more information.
-
 ## Copyright
 
-- Auudio © Copyright 2022 Keksuccino.<br>
+- Auudio © Copyright 2026 Keksuccino.<br>
